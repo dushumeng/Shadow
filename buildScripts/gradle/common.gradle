@@ -13,6 +13,8 @@ allprojects {
     ext.TARGET_SDK_VERSION = 28
     ext.VERSION_CODE = 1
 
+    println("dsm------")
+
     if ("${System.env.CI}".equalsIgnoreCase("true")) {
         ext.VERSION_NAME = System.getenv("GITHUB_REF_SLUG")
     } else {
@@ -26,7 +28,18 @@ allprojects {
     } else {
         ext.VERSION_SUFFIX = "-${gitShortRev()}-SNAPSHOT"
     }
+
+    def dsmProperties = new Properties()
+    def dsmPropertiesFile = project.rootProject.file('dsm.properties')
+    if (dsmPropertiesFile.exists()) {
+        dsmProperties.load(dsmPropertiesFile.newDataInputStream())
+        def versionType = dsmProperties.getProperty('version.type')
+        ext.VERSION_SUFFIX = dsmProperties.getProperty("version.${versionType}.suffix")
+        ext.VERSION_NAME = dsmProperties.getProperty("version.${versionType}.name")
+    }
+
     ext.ARTIFACT_VERSION = ext.VERSION_NAME + ext.VERSION_SUFFIX
+    println("dsm------" + ext.ARTIFACT_VERSION)
     ext.TEST_HOST_APP_APPLICATION_ID = 'com.tencent.shadow.test.hostapp'
     ext.SAMPLE_HOST_APP_APPLICATION_ID = 'com.tencent.shadow.sample.host'
     repositories {

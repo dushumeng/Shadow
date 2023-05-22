@@ -463,7 +463,22 @@ publishing {
                 url "https://maven.pkg.github.com/" + "${System.env.GITHUB_REPOSITORY}".toLowerCase()
             }
         } else {
-            mavenLocal()
+            def dsmProperties = new Properties()
+            def dsmPropertiesFile = project.rootProject.file('dsm.properties')
+            if (dsmPropertiesFile.exists()) {
+                dsmProperties.load(dsmPropertiesFile.newDataInputStream())
+                def versionType = dsmProperties.getProperty('version.type')
+                maven {
+                    name = dsmProperties.getProperty('aliyun.name')
+                    credentials {
+                        username = dsmProperties.getProperty("aliyun.${versionType}.user.name")
+                        password = dsmProperties.getProperty("aliyun.${versionType}.user.value")
+                    }
+                    url dsmProperties.getProperty("aliyun.${versionType}.url")
+                }
+            } else {
+                mavenLocal()
+            }
         }
     }
 }
